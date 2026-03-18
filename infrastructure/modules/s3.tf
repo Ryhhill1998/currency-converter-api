@@ -1,0 +1,7 @@
+resource "aws_s3_bucket" "data_storage_bucket" {
+  bucket = "${var.project_name}-data-storage-bucket-${var.environment}"
+
+  tags = {
+    Name = "Data Storage Bucket"
+  }
+}
