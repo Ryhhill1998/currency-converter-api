@@ -2,7 +2,7 @@ terraform {
   required_version = "~> 1.14.0"
 
   backend "s3" {
-    bucket       = "currency-exchange-terraform-state"
+    bucket       = "currency-converter-api-tfstate-756316131141-eu-west-1-an"
     key          = "staging/terraform.tfstate"
     region       = "eu-west-1"
     use_lockfile = true
@@ -18,7 +18,7 @@ terraform {
 
 locals {
   environment  = "staging"
-  project_name = "currency-exchange-api"
+  project_name = "currency-converter-api"
 }
 
 provider "aws" {
