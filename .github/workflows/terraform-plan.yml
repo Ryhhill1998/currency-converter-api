@@ -56,10 +56,17 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const plan = process.env.STAGING_PLAN;
+            const summary = plan.split('\n').find(line => line.includes('Plan:')) || 'Plan generated';
+            
             const output = `#### Staging Terraform Plan 📖
+            <details><summary>${summary} (Click to expand details)</summary>
+
             \`\`\`terraform
-            ${process.env.STAGING_PLAN}
+            ${plan}
             \`\`\`
+            </details>
+            
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
             const { data: comments } = await github.rest.issues.listComments({
@@ -126,10 +133,17 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const plan = process.env.PROD_PLAN;
+            const summary = plan.split('\n').find(line => line.includes('Plan:')) || 'Plan generated';
+
             const output = `#### Production Terraform Plan 🚀
+            <details><summary>${summary} (Click to expand details)</summary>
+
             \`\`\`terraform
-            ${process.env.PROD_PLAN}
+            ${plan}
             \`\`\`
+            </details>
+            
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
             const { data: comments } = await github.rest.issues.listComments({
