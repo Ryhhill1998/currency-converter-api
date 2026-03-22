@@ -46,14 +46,14 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest ./ingestion \
             --push
 
-      - name: Update Staging Lambda
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}-ingestion-lambda-staging"
-        run: |
-          aws lambda update-function-code \
-          --function-name $LAMBDA_NAME \
-          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
+#      - name: Update Staging Lambda
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}-ingestion-lambda-staging"
+#        run: |
+#          aws lambda update-function-code \
+#          --function-name $LAMBDA_NAME \
+#          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
 
   deploy-production:
     name: "Build & Deploy Production"
@@ -90,11 +90,11 @@ jobs:
             -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest ./ingestion \
             --push
 
-      - name: Update Staging Lambda
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}-ingestion-lambda-production"
-        run: |
-          aws lambda update-function-code \
-          --function-name $LAMBDA_NAME \
-          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
+#      - name: Update Staging Lambda
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}-ingestion-lambda-production"
+#        run: |
+#          aws lambda update-function-code \
+#          --function-name $LAMBDA_NAME \
+#          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
