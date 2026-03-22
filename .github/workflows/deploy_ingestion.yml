@@ -1,0 +1,100 @@
+#name: "Ingestion App Deployment"
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#    paths:
+#      - 'ingestion/**'
+#
+#permissions:
+#  id-token: write
+#  contents: read
+#
+#jobs:
+#  deploy-staging:
+#    name: "Build & Deploy Staging"
+#    runs-on: ubuntu-latest
+#    environment: staging
+#
+#    env:
+#      ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
+#
+#    steps:
+#      - name: Checkout Code
+#        uses: actions/checkout@v6
+#
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v6
+#        with:
+#          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+#          aws-region: eu-west-1
+#
+#      - name: Login to Amazon ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v2
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v4
+#
+#      - name: Build and Push Image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#        run: |
+#          docker build --platform linux/arm64 \
+#            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }} \
+#            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest ./ingestion \
+#            --push
+#
+#      - name: Update Staging Lambda
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
+#        run: |
+#          aws lambda update-function-code \
+#          --function-name $LAMBDA_NAME \
+#          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
+#
+#  deploy-production:
+#    name: "Build & Deploy Production"
+#    needs: [deploy-staging]
+#    runs-on: ubuntu-latest
+#    environment: production
+#
+#    env:
+#      ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_production"
+#
+#    steps:
+#      - name: Checkout Code
+#        uses: actions/checkout@v6
+#
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v6
+#        with:
+#          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+#          aws-region: eu-west-1
+#
+#      - name: Login to Amazon ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v2
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v4
+#
+#      - name: Build and Push Image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#        run: |
+#          docker build --platform linux/arm64 \
+#            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }} \
+#            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest ./ingestion \
+#            --push
+#
+#      - name: Update Staging Lambda
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_production"
+#        run: |
+#          aws lambda update-function-code \
+#          --function-name $LAMBDA_NAME \
+#          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
