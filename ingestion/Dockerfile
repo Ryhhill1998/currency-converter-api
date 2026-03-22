@@ -1,19 +1,30 @@
-FROM public.ecr.aws/lambda/python:3.14
+# Stage 1: Get UV
+FROM ghcr.io/astral-sh/uv:latest AS uv
 
-# Install uv binary from official image
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+# Stage 2: Bundle dependencies
+FROM public.ecr.aws/lambda/python:3.12-arm64 AS builder
 
-# Set working directory to Lambda's expected root
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_NO_INSTALLER_METADATA=1
+ENV UV_LINK_MODE=copy
+
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-# Copy dependency files first for caching
-COPY pyproject.toml uv.lock ./
+# Install dependencies into the task root folder directly
+RUN --mount=from=uv,source=/uv,target=/bin/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv pip install --no-cache --target "${LAMBDA_TASK_ROOT}" -r pyproject.toml
 
-# Install dependencies into the system site-packages
-RUN uv pip install --system -r pyproject.toml
+# Stage 3: Final Runtime
+FROM public.ecr.aws/lambda/python:3.12-arm64
+WORKDIR ${LAMBDA_TASK_ROOT}
 
-# Copy source code
+# Copy the pre-installed dependencies from the builder
+COPY --from=builder ${LAMBDA_TASK_ROOT} ${LAMBDA_TASK_ROOT}
+
+# Copy your source code
 COPY src/ ./src/
 
-# Point to your index.py -> handler function
-CMD [ "src.index.handler" ]
+# Lambda will look for handler() inside src/index.py
+CMD ["src.index.handler"]
