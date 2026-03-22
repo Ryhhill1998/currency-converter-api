@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "ingestion_lambda" {
-  name                 = "${var.project_name}-ingestion-lambda-${var.environment}"
+  name                 = "${var.project_name}_ingestion_lambda_${var.environment}"
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 

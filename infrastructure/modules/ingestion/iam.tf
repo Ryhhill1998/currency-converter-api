@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ingestion_lambda" {
-  name               = "ingestion-lambda-role"
+  name               = "ingestion_lambda_role"
   assume_role_policy = file("${path.module}/policies/lambda_trust_policy.json")
 }
 
