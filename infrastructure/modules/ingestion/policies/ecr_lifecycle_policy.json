@@ -2,7 +2,7 @@
   "rules": [
     {
       "rulePriority": 1,
-      "description": "Rule 1: IMMUNITY for the latest tag (Never delete)",
+      "description": "Protect the active image",
       "selection": {
         "tagStatus": "tagged",
         "tagPrefixList": ["latest"],
@@ -15,24 +15,11 @@
     },
     {
       "rulePriority": 2,
-      "description": "Rule 2: CAP at 5 images (Delete 6th oldest immediately)",
+      "description": "Keep only the 5 most recent images (Total)",
       "selection": {
         "tagStatus": "any",
         "countType": "imageCountMoreThan",
         "countNumber": 5
-      },
-      "action": {
-        "type": "expire"
-      }
-    },
-    {
-      "rulePriority": 3,
-      "description": "Rule 3: EXPIRY at 7 days (Cleanup old versions)",
-      "selection": {
-        "tagStatus": "any",
-        "countType": "sinceImagePushed",
-        "countUnit": "days",
-        "countNumber": 7
       },
       "action": {
         "type": "expire"
