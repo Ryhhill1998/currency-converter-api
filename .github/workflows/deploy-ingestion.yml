@@ -15,7 +15,7 @@ jobs:
   deploy-staging:
     name: "Build & Deploy Staging"
     runs-on: ubuntu-latest
-    environment: staging # We'll target staging first
+    environment: staging
 
     steps:
       - name: Checkout Code
@@ -35,7 +35,6 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Build and Push Image
-        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
@@ -57,17 +56,39 @@ jobs:
     name: "Promote to Production"
     needs: [deploy-staging]
     runs-on: ubuntu-latest
-    environment: production # Requires manual approval in GitHub UI
+    environment: production
+
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
 
-      - name: Update Production Lambda
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and Push Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_production"
         run: |
-          # Use the EXACT same image URI that was verified in Staging
+          docker build --platform linux/arm64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }} \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest ./ingestion \
+            --push
+
+      - name: Update Staging Lambda
+        env:
+          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_production"
+        run: |
           aws lambda update-function-code \
-            --function-name ${{ vars.PROJECT_NAME }}_ingestion_lambda_production \
-            --image-uri ${{ needs.deploy-staging.outputs.image_uri }}
+          --function-name $LAMBDA_NAME \
+          --image-uri $REGISTRY/$REPO:${{ github.sha }}
