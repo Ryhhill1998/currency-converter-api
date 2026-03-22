@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
 
+    env:
+      ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -37,7 +40,6 @@ jobs:
       - name: Build and Push Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
         run: |
           docker build --platform linux/arm64 \
             -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }} \
@@ -46,11 +48,12 @@ jobs:
 
       - name: Update Staging Lambda
         env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
         run: |
           aws lambda update-function-code \
           --function-name $LAMBDA_NAME \
-          --image-uri $REGISTRY/$REPO:${{ github.sha }}
+          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
 
   deploy-production:
     name: "Promote to Production"
@@ -58,6 +61,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
+    env:
+      ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_production"
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -78,7 +84,6 @@ jobs:
       - name: Build and Push Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_production"
         run: |
           docker build --platform linux/arm64 \
             -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }} \
@@ -87,8 +92,9 @@ jobs:
 
       - name: Update Staging Lambda
         env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_production"
         run: |
           aws lambda update-function-code \
           --function-name $LAMBDA_NAME \
-          --image-uri $REGISTRY/$REPO:${{ github.sha }}
+          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
