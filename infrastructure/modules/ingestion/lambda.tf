@@ -1,13 +1,12 @@
-# resource "aws_lambda_function" "ingestion_lambda" {
-#   function_name = "${var.project_name}-ingestion-${var.environment}"
-#   role          = aws_iam_role.ingestion_lambda.arn
-#
-#   package_type  = "Image"
-#   image_uri     = "${aws_ecr_repository.ingestion_lambda.repository_url}:latest"
-#
-#   environment {
-#     variables = {
-#       S3_BUCKET_NAME = aws_s3_bucket.data_storage_bucket.id
-#     }
-#   }
-# }
+resource "aws_lambda_function" "ingestion_lambda" {
+  function_name = "ingestion-service"
+  role          = aws_iam_role.lambda_role.arn
+  
+  package_type  = "Image"
+  
+  # Reference the repo you already have in ecr.tf
+  image_uri     = "${aws_ecr_repository.ingestion_lambda.repository_url}:latest"
+
+  timeout     = 30
+  memory_size = 128
+}
