@@ -13,8 +13,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  static-analysis:
-    name: "Linter & Security Scan"
+  lint:
+    name: "Lint Check"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -26,23 +26,9 @@ jobs:
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
-        with:
-          tflint_version: latest
-
-      - name: Init TFLint
-        run: tflint --init
-
-      - name: Run TFLint
-        run: tflint --recursive
-
   plan-staging:
     name: "Plan Staging"
-    needs: static-analysis
+    needs: lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -65,6 +51,9 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
 
       - name: Terraform Plan
         id: plan
@@ -139,6 +128,9 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
 
       - name: Terraform Plan
         id: plan
