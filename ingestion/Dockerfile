@@ -2,7 +2,7 @@
 FROM ghcr.io/astral-sh/uv:latest AS uv
 
 # Stage 2: Bundle dependencies
-FROM public.ecr.aws/lambda/python:3.12-arm64 AS builder
+FROM public.ecr.aws/lambda/python:3.14-arm64 AS builder
 
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_NO_INSTALLER_METADATA=1
@@ -17,7 +17,7 @@ RUN --mount=from=uv,source=/uv,target=/bin/uv \
     uv pip install --no-cache --target "${LAMBDA_TASK_ROOT}" -r pyproject.toml
 
 # Stage 3: Final Runtime
-FROM public.ecr.aws/lambda/python:3.12-arm64
+FROM public.ecr.aws/lambda/python:3.14-arm64
 WORKDIR ${LAMBDA_TASK_ROOT}
 
 # Copy the pre-installed dependencies from the builder
