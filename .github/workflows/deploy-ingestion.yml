@@ -56,7 +56,7 @@
 #          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }}
 #
 #  deploy-production:
-#    name: "Promote to Production"
+#    name: "Build & Deploy Production"
 #    needs: [deploy-staging]
 #    runs-on: ubuntu-latest
 #    environment: production
