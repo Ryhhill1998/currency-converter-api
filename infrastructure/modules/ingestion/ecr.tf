@@ -12,21 +12,7 @@ resource "aws_ecr_repository" "ingestion_lambda" {
   }
 }
 
-data "aws_ecr_lifecycle_policy_document" "ingestion_lambda" {
-  rule {
-    priority    = 1
-    description = "Delete untagged images to save costs"
-
-    selection {
-      tag_status   = "untagged"
-      count_type   = "imageCountMoreThan"
-      count_number = 1
-    }
-  }
-}
-
 resource "aws_ecr_lifecycle_policy" "ingestion_lambda" {
   repository = aws_ecr_repository.ingestion_lambda.name
-
-  policy = data.aws_ecr_lifecycle_policy_document.ingestion_lambda.json
+  policy = file("${path.module}/policies/ecr_lifecycle_policy")
 }

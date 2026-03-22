@@ -1,12 +1,9 @@
-resource "aws_iam_role" "lambda_exec" {
+resource "aws_iam_role" "ingestion_lambda" {
   name               = "ingestion-lambda-role"
-
-  # Loads the JSON content from the file
-  assume_role_policy = file("${path.module}/policies/lambda-assume-role.json")
+  assume_role_policy = file("${path.module}/policies/lambda_trust_policy.json")
 }
 
-# Standard execution role for logging (AWS Managed)
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.ingestion_lambda.name
 }
