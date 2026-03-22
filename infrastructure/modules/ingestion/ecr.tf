@@ -18,9 +18,9 @@ data "aws_ecr_lifecycle_policy_document" "ingestion_lambda" {
     description = "Delete untagged images to save costs"
 
     selection {
-      tag_status      = "untagged"
-      count_type      = "imageCountMoreThan"
-      count_number    = 1
+      tag_status   = "untagged"
+      count_type   = "imageCountMoreThan"
+      count_number = 1
     }
   }
 }
