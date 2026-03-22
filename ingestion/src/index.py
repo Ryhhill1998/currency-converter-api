@@ -1,2 +1,2 @@
 def handler(_, __) -> None:
-    print('Running lambda handler')
+    print("Running lambda handler")
