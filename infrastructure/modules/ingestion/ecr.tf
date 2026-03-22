@@ -14,5 +14,5 @@ resource "aws_ecr_repository" "ingestion_lambda" {
 
 resource "aws_ecr_lifecycle_policy" "ingestion_lambda" {
   repository = aws_ecr_repository.ingestion_lambda.name
-  policy = file("${path.module}/policies/ecr_lifecycle_policy")
+  policy     = file("${path.module}/policies/ecr_lifecycle_policy")
 }
