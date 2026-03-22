@@ -8,4 +8,10 @@ resource "aws_lambda_function" "ingestion_lambda" {
   memory_size = 128
 
   architectures = ["arm64"]
+
+  lifecycle {
+    ignore_changes = [
+      image_uri,
+    ]
+  }
 }

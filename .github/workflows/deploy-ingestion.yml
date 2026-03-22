@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  build-and-push:
-    name: "Build and Push to ECR"
+  deploy-staging:
+    name: "Build & Deploy Staging"
     runs-on: ubuntu-latest
     environment: staging # We'll target staging first
 
@@ -35,17 +35,39 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Build and Push Image
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: "ingestion-lambda"
-          IMAGE_TAG: "latest"
-          # This matches your Terraform naming convention
-          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
+          ECR_REPOSITORY_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
         run: |
           docker build --platform linux/arm64 \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./ingestion \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:${{ github.sha }} \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest ./ingestion \
             --push
 
+      - name: Update Staging Lambda
+        env:
+          LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
+        run: |
           aws lambda update-function-code \
-            --function-name $LAMBDA_NAME \
-            --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          --function-name $LAMBDA_NAME \
+          --image-uri $REGISTRY/$REPO:${{ github.sha }}
+
+  deploy-production:
+    name: "Promote to Production"
+    needs: [deploy-staging]
+    runs-on: ubuntu-latest
+    environment: production # Requires manual approval in GitHub UI
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-1
+
+      - name: Update Production Lambda
+        run: |
+          # Use the EXACT same image URI that was verified in Staging
+          aws lambda update-function-code \
+            --function-name ${{ vars.PROJECT_NAME }}_ingestion_lambda_production \
+            --image-uri ${{ needs.deploy-staging.outputs.image_uri }}
