@@ -5,9 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'ingestion/**'        # Only run when app code/Dockerfile changes
-      - 'pyproject.toml'
-      - 'uv.lock'
+      - 'ingestion/**'
 
 permissions:
   id-token: write
@@ -21,10 +19,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
@@ -34,23 +32,20 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and Push Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          # Use your project naming convention
-          ECR_REPOSITORY: "ingestion-repo"
+          ECR_REPOSITORY: "ingestion-lambda"
           IMAGE_TAG: "latest"
           # This matches your Terraform naming convention
           LAMBDA_NAME: "${{ vars.PROJECT_NAME }}_ingestion_lambda_staging"
         run: |
-          # 1. Build for ARM64 to match your Terraform 'architectures' setting
           docker build --platform linux/arm64 \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./ingestion \
             --push
 
-          # 2. Tell the Lambda to pull the new image immediately
           aws lambda update-function-code \
             --function-name $LAMBDA_NAME \
             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
