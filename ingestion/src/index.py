@@ -1,3 +1,9 @@
+import asyncio
+
+
+async def main() -> None:
+    pass
+
+
 def handler(_, __) -> None:
-    # comment
-    print("Running lambda handler")
+    asyncio.run(main())
