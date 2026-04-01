@@ -9,5 +9,5 @@ class IngestionService:
         self.archive_store = archive_store
         self.rates_store = rates_store
 
-    def run(self) -> None:
+    async def run(self) -> None:
         pass
