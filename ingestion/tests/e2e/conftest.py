@@ -8,25 +8,30 @@ from moto import mock_aws
 
 
 @pytest.fixture
-def aws_credentials() -> None:
+def aws_region() -> str:
+    return "us-east-1"
+
+
+@pytest.fixture
+def aws_credentials(aws_region: str) -> None:
     os.environ["AWS_ACCESS_KEY_ID"] = "testing"
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
     os.environ["AWS_SECURITY_TOKEN"] = "testing"
     os.environ["AWS_SESSION_TOKEN"] = "testing"
-    os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
+    os.environ["AWS_DEFAULT_REGION"] = aws_region
 
 
 @pytest.fixture
-def mocked_aws(aws_credentials: None) -> Generator[None, Any, None]:
+def mocked_aws(aws_credentials: None) -> Generator[None]:
     with mock_aws():
         yield
 
 
 @pytest.fixture
-def s3(mocked_aws) -> S3Client:
-    return boto3.client("s3", region_name="us-east-1")
+def s3_client(mocked_aws: None, aws_region: str) -> S3Client:
+    return boto3.client("s3", region_name=aws_region)
 
 
 @pytest.fixture
-def create_archive_bucket(s3) -> None:
-    s3.create_bucket(Bucket="archive")
+def create_archive_bucket(s3_client: S3Client) -> None:
+    s3_client.create_bucket(Bucket="archive")
