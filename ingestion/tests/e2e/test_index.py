@@ -6,6 +6,7 @@ from mypy_boto3_s3.client import S3Client
 
 from src.index import handler
 from src.models.settings import GeneralSettings, HttpEcbSettings
+from tests.e2e.constants import ARCHIVE_BUCKET_NAME
 
 
 @pytest.fixture
@@ -39,6 +40,9 @@ async def test_handler_stores_expected_archive_data(
     mock_settings: GeneralSettings, create_archive_bucket: None, s3_client: S3Client
 ) -> None:
     await handler("", "")
+    s3_client.put_object(Bucket=ARCHIVE_BUCKET_NAME, Key="test.csv", Body="")
+    data = s3_client.get_object(Bucket=ARCHIVE_BUCKET_NAME, Key="test.csv")["Body"].read().decode(encoding="utf-8")
+    print(data)
 
 
 @pytest.mark.asyncio
