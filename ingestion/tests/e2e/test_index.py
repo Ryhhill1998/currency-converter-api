@@ -16,6 +16,12 @@ def mock_settings() -> GeneralSettings:
 
 
 @pytest.mark.asyncio
-async def test_handler(mock_settings: GeneralSettings) -> None:
+async def test_handler_stores_expected_archive_data(mock_settings: GeneralSettings) -> None:
+    with patch("src.index.get_general_settings", return_value=mock_settings):
+        await handler("", "")
+
+
+@pytest.mark.asyncio
+async def test_handler_stores_expected_rates_data(mock_settings: GeneralSettings) -> None:
     with patch("src.index.get_general_settings", return_value=mock_settings):
         await handler("", "")

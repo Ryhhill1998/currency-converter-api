@@ -12,6 +12,8 @@ dependencies = [
 
 [dependency-groups]
 test = [
+    "boto3-stubs[essential]>=1.42.83",
+    "moto>=5.1.22",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
 ]
