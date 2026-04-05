@@ -1,4 +1,4 @@
-from src.container import Container
+from src.containers.ingestion_service_container import Container
 from src.models.settings import GeneralSettings, get_general_settings
 
 settings: GeneralSettings = get_general_settings()
