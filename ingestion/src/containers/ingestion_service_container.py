@@ -9,7 +9,7 @@ from src.stores.archive.archive_store import ArchiveStore
 from src.stores.rates.rates_store import RatesStore
 
 
-class Container:
+class IngestionServiceContainer:
     def __init__(self, settings: GeneralSettings) -> None:
         self.settings = settings
         self._http_client: httpx.AsyncClient | None = None
