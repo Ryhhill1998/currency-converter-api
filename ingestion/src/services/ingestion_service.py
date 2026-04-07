@@ -27,7 +27,7 @@ class IngestionService:
     @staticmethod
     def _generate_vault_path(timestamp: datetime, data_type: VaultDataType, file_extension: VaultFileExtension) -> str:
         date_path = timestamp.strftime("year=%Y/month=%m/day=%d")
-        return f"ecb/type={data_type.value}/{date_path}/{data_type.value}_rates.{file_extension}"
+        return f"rates/type={data_type.value}/{date_path}/{data_type.value}_rates.{file_extension}"
 
     def run(self, run_timestamp: datetime) -> None:
         # Retrieve latest raw data from ECB
