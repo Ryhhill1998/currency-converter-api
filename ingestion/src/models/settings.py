@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     local_ecb_file_path: str = "data/ecb/ecb_data.csv"
 
     # --- Archive Store (S3) Settings ---
-    s3_archive_bucket_name: str = "currency-ingestion-archive"
-    local_archive_dir_path: Path = Path("data/archive")
+    s3_archive_bucket_name: str = "currency-ingestion-vault"
+    local_archive_dir_path: Path = Path("data/vault")
 
 
 @lru_cache(maxsize=1)

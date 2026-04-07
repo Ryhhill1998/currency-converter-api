@@ -1,1 +1,1 @@
-ARCHIVE_BUCKET_NAME = "archive-testing"
+ARCHIVE_BUCKET_NAME = "vault-testing"
