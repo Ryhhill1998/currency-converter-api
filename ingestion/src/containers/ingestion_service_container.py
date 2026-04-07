@@ -12,7 +12,7 @@ from src.services.ingestion_service import IngestionService
 from src.stores.vault.vault_store import VaultStore
 from src.stores.vault.local_vault_store import LocalVaultStore
 from src.stores.vault.s3_vault_store import S3VaultStore
-from src.stores.rates.rates_store import RatesStore
+from src.stores.live.live_store import LiveStore
 
 
 class IngestionServiceContainer:
@@ -62,7 +62,7 @@ class IngestionServiceContainer:
         s3_client: "S3Client" = boto3.client("s3")
         return S3VaultStore(client=s3_client, bucket_name=self.settings.s3_archive_bucket_name)
 
-    def _select_rates_store(self, is_local: bool) -> RatesStore:
+    def _select_rates_store(self, is_local: bool) -> LiveStore:
         pass
 
     def get_ingestion_service(self) -> IngestionService:

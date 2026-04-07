@@ -2,12 +2,12 @@ from datetime import datetime
 
 from src.clients.ecb.ecb_client import EcbClient
 from src.stores.vault.vault_store import VaultStore
-from src.stores.rates.rates_store import RatesStore
+from src.stores.live.live_store import LiveStore
 from src.utils.parsers import parse_ecb_rates
 
 
 class IngestionService:
-    def __init__(self, ecb_client: EcbClient, archive_store: VaultStore, rates_store: RatesStore) -> None:
+    def __init__(self, ecb_client: EcbClient, archive_store: VaultStore, rates_store: LiveStore) -> None:
         self.ecb_client = ecb_client
         self.archive_store = archive_store
         self.rates_store = rates_store
