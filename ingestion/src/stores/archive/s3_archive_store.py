@@ -8,5 +8,5 @@ class S3ArchiveStore(ArchiveStore):
         self.client = client
         self.bucket_name = bucket_name
 
-    def write(self, data: bytes) -> None:
-        pass
+    def write(self, data: bytes, file_path: str) -> None:
+        self.client.put_object(Bucket=self.bucket_name, Key=file_path, Body=data)
