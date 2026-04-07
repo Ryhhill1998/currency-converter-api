@@ -60,7 +60,9 @@ class IngestionServiceContainer:
             return LocalVaultStore(self.settings.local_archive_dir_path)
 
         s3_client: "S3Client" = boto3.client("s3")
-        return S3VaultStore(client=s3_client, bucket_name=self.settings.s3_archive_bucket_name)
+        return S3VaultStore(
+            client=s3_client, bucket_name=self.settings.s3_archive_bucket_name
+        )
 
     def _select_live_store(self, is_local: bool) -> LiveStore:
         pass

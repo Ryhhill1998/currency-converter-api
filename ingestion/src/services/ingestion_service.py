@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from enum import StrEnum, auto
 
@@ -19,13 +18,19 @@ class VaultFileExtension(StrEnum):
 
 
 class IngestionService:
-    def __init__(self, ecb_client: EcbClient, vault_store: VaultStore, live_store: LiveStore) -> None:
+    def __init__(
+        self, ecb_client: EcbClient, vault_store: VaultStore, live_store: LiveStore
+    ) -> None:
         self.ecb_client = ecb_client
         self.vault_store = vault_store
         self.live_store = live_store
 
     @staticmethod
-    def _generate_vault_path(timestamp: datetime, data_type: VaultDataType, file_extension: VaultFileExtension) -> str:
+    def _generate_vault_path(
+        timestamp: datetime,
+        data_type: VaultDataType,
+        file_extension: VaultFileExtension,
+    ) -> str:
         date_path = timestamp.strftime("year=%Y/month=%m/day=%d")
         return f"rates/type={data_type.value}/{date_path}/{data_type.value}_rates.{file_extension}"
 
@@ -35,7 +40,9 @@ class IngestionService:
 
         # Store raw data in vault
         raw_file_path: str = self._generate_vault_path(
-            timestamp=run_timestamp, data_type=VaultDataType.RAW, file_extension=VaultFileExtension.CSV
+            timestamp=run_timestamp,
+            data_type=VaultDataType.RAW,
+            file_extension=VaultFileExtension.CSV,
         )
         self.vault_store.store(data=raw_rates, file_path=raw_file_path)
 
@@ -44,7 +51,9 @@ class IngestionService:
 
         # Store parsed data in vault
         parsed_file_path: str = self._generate_vault_path(
-            timestamp=run_timestamp, data_type=VaultDataType.PARSED, file_extension=VaultFileExtension.JSON
+            timestamp=run_timestamp,
+            data_type=VaultDataType.PARSED,
+            file_extension=VaultFileExtension.JSON,
         )
         serialised_rates: bytes = serialise_rates(parsed_rates)
         self.vault_store.store(data=serialised_rates, file_path=parsed_file_path)

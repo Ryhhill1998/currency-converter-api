@@ -4,6 +4,7 @@ import pytest
 import httpx
 from freezegun import freeze_time
 from mypy_boto3_s3.client import S3Client
+from pydantic import HttpUrl
 
 from src.index import handler
 from src.models.settings import Settings
@@ -26,13 +27,15 @@ def mock_settings(mock_ecb_url: str) -> Settings:
         is_local_ecb_client=False,  # make sure to not hit actual API (mock client)
         is_local_vault_store=False,  # store in mocked AWS resources
         is_local_live_store=False,  # store in mocked AWS resources
-        http_ecb_url=mock_ecb_url,
+        http_ecb_url=HttpUrl(mock_ecb_url),
         s3_archive_bucket_name=ARCHIVE_BUCKET_NAME,
     )
 
 
 @pytest.fixture
-def mock_ecb_endpoint_response(respx_mock, mock_ecb_url: str, mock_ecb_data_path: str) -> Generator[None]:
+def mock_ecb_endpoint_response(
+    respx_mock, mock_ecb_url: str, mock_ecb_data_path: str
+) -> Generator[None]:
     with open(mock_ecb_data_path, "rb") as file:
         ecb_data: bytes = file.read()
 
@@ -57,7 +60,11 @@ def test_handler_stores_expected_archive_data(
         expected_data = data_file.read()
 
     archive_file_path = "rates/type=raw/year=2026/month=01/day=01/raw_rates.csv"
-    actual_data = s3_client.get_object(Bucket=ARCHIVE_BUCKET_NAME, Key=archive_file_path)["Body"].read().decode(encoding="utf-8")
+    actual_data = (
+        s3_client.get_object(Bucket=ARCHIVE_BUCKET_NAME, Key=archive_file_path)["Body"]
+        .read()
+        .decode(encoding="utf-8")
+    )
 
     assert actual_data == expected_data
 
