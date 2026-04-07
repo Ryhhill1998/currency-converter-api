@@ -8,8 +8,8 @@ async def handler(_, __) -> dict[str, str]:
     system_run_timestamp: datetime = datetime.now()
     settings: GeneralSettings = get_general_settings()
 
-    async with IngestionServiceContainer(settings) as container:
-        ingestion_service = container.get_ingestion_service()
-        await ingestion_service.run()
+    async with IngestionServiceContainer(settings) as ingestion_service_container:
+        ingestion_service = ingestion_service_container.get_ingestion_service()
+        await ingestion_service.run(system_run_timestamp)
 
     return {"status": "success"}
