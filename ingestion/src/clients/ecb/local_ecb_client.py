@@ -6,4 +6,7 @@ class LocalEcbClient(EcbClient):
         self.file_path = file_path
 
     def fetch_latest_rates(self) -> bytes:
-        pass
+        with open(self.file_path, mode="rb") as file:
+            data: bytes = file.read()
+
+        return data
