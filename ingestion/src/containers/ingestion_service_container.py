@@ -55,14 +55,14 @@ class IngestionServiceContainer:
             observations=self.settings.http_ecb_observations,
         )
 
-    def _select_archive_store(self, is_local: bool) -> VaultStore:
+    def _select_vault_store(self, is_local: bool) -> VaultStore:
         if is_local:
             return LocalVaultStore(self.settings.local_archive_dir_path)
 
         s3_client: "S3Client" = boto3.client("s3")
         return S3VaultStore(client=s3_client, bucket_name=self.settings.s3_archive_bucket_name)
 
-    def _select_rates_store(self, is_local: bool) -> LiveStore:
+    def _select_live_store(self, is_local: bool) -> LiveStore:
         pass
 
     def get_ingestion_service(self) -> IngestionService:
@@ -70,6 +70,6 @@ class IngestionServiceContainer:
 
         return IngestionService(
             ecb_client=self._select_ecb_client(self.settings.is_local_ecb_client),
-            archive_store=self._select_archive_store(self.settings.is_local_archive_store),
-            rates_store=self._select_rates_store(self.settings.is_local_rates_store),
+            vault_store=self._select_vault_store(self.settings.is_local_vault_store),
+            live_store=self._select_live_store(self.settings.is_local_live_store),
         )

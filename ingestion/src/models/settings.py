@@ -8,8 +8,8 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # --- Mode Toggles ---
     is_local_ecb_client: bool = False
-    is_local_archive_store: bool = False
-    is_local_rates_store: bool = False
+    is_local_vault_store: bool = False
+    is_local_live_store: bool = False
 
     # --- General ---
     http_timeout: float = 10.0

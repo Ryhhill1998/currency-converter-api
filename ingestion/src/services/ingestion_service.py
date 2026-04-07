@@ -1,33 +1,53 @@
+import json
 from datetime import datetime
+from enum import StrEnum, auto
 
 from src.clients.ecb.ecb_client import EcbClient
 from src.stores.vault.vault_store import VaultStore
 from src.stores.live.live_store import LiveStore
-from src.utils.parsers import parse_ecb_rates
+from src.utils.parsers import parse_raw_rates, serialise_rates
+
+
+class VaultDataType(StrEnum):
+    RAW = auto()
+    PARSED = auto()
+
+
+class VaultFileExtension(StrEnum):
+    CSV = auto()
+    JSON = auto()
 
 
 class IngestionService:
-    def __init__(self, ecb_client: EcbClient, archive_store: VaultStore, rates_store: LiveStore) -> None:
+    def __init__(self, ecb_client: EcbClient, vault_store: VaultStore, live_store: LiveStore) -> None:
         self.ecb_client = ecb_client
-        self.archive_store = archive_store
-        self.rates_store = rates_store
+        self.vault_store = vault_store
+        self.live_store = live_store
 
     @staticmethod
-    def _generate_vault_path(timestamp: datetime) -> str:
-        return timestamp.strftime("ecb/year=%Y/month=%m/day=%d/raw_rates.csv")
+    def _generate_vault_path(timestamp: datetime, data_type: VaultDataType, file_extension: VaultFileExtension) -> str:
+        date_path = timestamp.strftime("year=%Y/month=%m/day=%d")
+        return f"ecb/type={data_type.value}/{date_path}/{data_type.value}_rates.{file_extension}"
 
     def run(self, run_timestamp: datetime) -> None:
         # Retrieve latest raw data from ECB
-        latest_rates_data: bytes = self.ecb_client.fetch_latest_rates()
+        raw_rates: bytes = self.ecb_client.fetch_latest_rates()
 
         # Store raw data in vault
-        archive_file_path: str = self._generate_vault_path(run_timestamp)
-        self.archive_store.store(data=latest_rates_data, file_path=archive_file_path)
+        raw_file_path: str = self._generate_vault_path(
+            timestamp=run_timestamp, data_type=VaultDataType.RAW, file_extension=VaultFileExtension.CSV
+        )
+        self.vault_store.store(data=raw_rates, file_path=raw_file_path)
 
         # Parse raw data
-        parsed_rates: list[dict] = parse_ecb_rates(latest_rates_data)
+        parsed_rates: list[dict] = parse_raw_rates(raw_rates)
 
         # Store parsed data in vault
+        parsed_file_path: str = self._generate_vault_path(
+            timestamp=run_timestamp, data_type=VaultDataType.PARSED, file_extension=VaultFileExtension.JSON
+        )
+        serialised_rates: bytes = serialise_rates(parsed_rates)
+        self.vault_store.store(data=serialised_rates, file_path=parsed_file_path)
 
         # Store parsed data in cache
-        # self.rates_store.write(parsed_rates)
+        # self.live_store.write(parsed_rates)

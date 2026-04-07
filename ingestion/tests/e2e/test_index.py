@@ -19,8 +19,8 @@ def mock_ecb_url() -> str:
 def mock_settings(mock_ecb_url: str) -> Settings:
     return Settings(
         is_local_ecb_client=False,  # make sure to not hit actual API (mock client)
-        is_local_archive_store=False,  # store in mocked AWS resources
-        is_local_rates_store=False,  # store in mocked AWS resources
+        is_local_vault_store=False,  # store in mocked AWS resources
+        is_local_live_store=False,  # store in mocked AWS resources
         http_ecb_url=mock_ecb_url,
         s3_archive_bucket_name=ARCHIVE_BUCKET_NAME,
     )
