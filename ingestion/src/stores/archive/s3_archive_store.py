@@ -1,3 +1,5 @@
+from mypy_boto3_s3.client import S3Client
+
 from src.stores.archive.archive_store import ArchiveStore
 
 
@@ -6,5 +8,5 @@ class S3ArchiveStore(ArchiveStore):
         self.client = client
         self.bucket_name = bucket_name
 
-    def write(self) -> None:
+    def write(self, data: bytes) -> None:
         pass

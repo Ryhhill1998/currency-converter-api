@@ -1,3 +1,5 @@
+from mypy_boto3_s3.client import S3Client
+
 from src.stores.rates.rates_store import RatesStore
 
 
@@ -6,5 +8,5 @@ class S3RatesStore(RatesStore):
         self.client = client
         self.bucket_name = bucket_name
 
-    def write(self) -> None:
+    def write(self, rates_map: list[dict]) -> None:
         pass
