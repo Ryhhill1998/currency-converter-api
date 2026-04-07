@@ -44,21 +44,20 @@ class IngestionServiceContainer:
 
     def _select_ecb_client(self, is_local: bool) -> EcbClient:
         if is_local:
-            return LocalEcbClient(self.settings.ecb_local_file_path)
+            return LocalEcbClient(self.settings.local_ecb_file_path)
 
-        if self._http_client is None:
-            raise RuntimeError("Must use ")
+        assert self._http_client is not None
 
         return HttpEcbClient(
             client=self._http_client,
-            url=self.settings.ecb_http_url.unicode_string(),
-            data_format=self.settings.ecb_http_format,
-            observations=self.settings.ecb_http_observations,
+            url=self.settings.http_ecb_url.unicode_string(),
+            data_format=self.settings.http_ecb_format,
+            observations=self.settings.http_ecb_observations,
         )
 
     def _select_archive_store(self, is_local: bool) -> ArchiveStore:
         if is_local:
-            return LocalArchiveStore(self.settings.local_archive_base_path)
+            return LocalArchiveStore(self.settings.local_archive_dir_path)
 
         s3_client: "S3Client" = boto3.client("s3")
         return S3ArchiveStore(client=s3_client, bucket_name=self.settings.s3_archive_bucket_name)

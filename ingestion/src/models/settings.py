@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import HttpUrl
 from pydantic_settings import BaseSettings
@@ -21,7 +22,7 @@ class Settings(BaseSettings):
 
     # --- Archive Store (S3) Settings ---
     s3_archive_bucket_name: str = "currency-ingestion-archive"
-    local_archive_dir_path: str = "data/archive"
+    local_archive_dir_path: Path = Path("data/archive")
 
 
 @lru_cache(maxsize=1)

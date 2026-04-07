@@ -8,8 +8,8 @@ class LocalArchiveStore(ArchiveStore):
         self.dir_path = dir_path
 
     def write(self, data: bytes, file_path: str) -> None:
-        self.dir_path.mkdir(parents=True, exist_ok=True)
         output_path: Path = self.dir_path / file_path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(output_path, "wb") as file:
             file.write(data)
