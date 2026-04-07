@@ -11,6 +11,11 @@ from tests.e2e.constants import ARCHIVE_BUCKET_NAME
 
 
 @pytest.fixture
+def mock_ecb_data_path() -> str:
+    return "data/ecb/ecb_data.csv"
+
+
+@pytest.fixture
 def mock_ecb_url() -> str:
     return "https://test.com"
 
@@ -27,8 +32,8 @@ def mock_settings(mock_ecb_url: str) -> Settings:
 
 
 @pytest.fixture
-def mock_ecb_endpoint_response(respx_mock, mock_ecb_url: str) -> Generator[None]:
-    with open("data/ecb/ecb_data.csv", "rb") as file:
+def mock_ecb_endpoint_response(respx_mock, mock_ecb_url: str, mock_ecb_data_path: str) -> Generator[None]:
+    with open(mock_ecb_data_path, "rb") as file:
         ecb_data: bytes = file.read()
 
     mock_response = httpx.Response(status_code=201, content=ecb_data)
@@ -38,15 +43,23 @@ def mock_ecb_endpoint_response(respx_mock, mock_ecb_url: str) -> Generator[None]
 
 @freeze_time("2026-01-01")
 def test_handler_stores_expected_archive_data(
-    mock_settings: Settings, mock_ecb_endpoint_response: None, create_archive_bucket: None, s3_client: S3Client
+    mock_settings: Settings,
+    mock_ecb_endpoint_response: None,
+    mock_ecb_data_path: str,
+    create_archive_bucket: None,
+    s3_client: S3Client,
 ) -> None:
     # ACT
     handler("", "", settings=mock_settings)
 
     # ASSERT
+    with open(mock_ecb_data_path) as data_file:
+        expected_data = data_file.read()
+
     archive_file_path = "rates/type=raw/year=2026/month=01/day=01/raw_rates.csv"
-    data = s3_client.get_object(Bucket=ARCHIVE_BUCKET_NAME, Key=archive_file_path)["Body"].read().decode(encoding="utf-8")
-    print(data)
+    actual_data = s3_client.get_object(Bucket=ARCHIVE_BUCKET_NAME, Key=archive_file_path)["Body"].read().decode(encoding="utf-8")
+
+    assert actual_data == expected_data
 
 
 @pytest.mark.skip
