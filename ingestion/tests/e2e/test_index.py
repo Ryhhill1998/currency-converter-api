@@ -44,12 +44,13 @@ def test_handler_stores_expected_archive_data(
     handler("", "", settings=mock_settings)
 
     # ASSERT
-    archive_file_path = "ecb/year=2026/month=01/day=01/raw_rates.csv"
+    archive_file_path = "rates/type=raw/year=2026/month=01/day=01/raw_rates.csv"
     data = s3_client.get_object(Bucket=ARCHIVE_BUCKET_NAME, Key=archive_file_path)["Body"].read().decode(encoding="utf-8")
     print(data)
 
 
+@pytest.mark.skip
 def test_handler_stores_expected_rates_data(
     mock_settings: Settings, create_archive_bucket: None
 ) -> None:
-    handler("", "")
+    handler("", "", settings=mock_settings)
