@@ -1,6 +1,3 @@
-from typing import Generator
-from unittest.mock import patch
-
 import pytest
 from freezegun import freeze_time
 from mypy_boto3_s3.client import S3Client
@@ -21,12 +18,11 @@ def mock_settings() -> Settings:
 
 
 @freeze_time("2026-01-01")
-@pytest.mark.asyncio
-async def test_handler_stores_expected_archive_data(
+def test_handler_stores_expected_archive_data(
     mock_settings: Settings, create_archive_bucket: None, s3_client: S3Client
 ) -> None:
     # ACT
-    await handler("", "")
+    handler("", "")
 
     # ASSERT
     archive_file_path = "ecb/year=2026/month=01/day=01/raw_rates.csv"
@@ -34,8 +30,7 @@ async def test_handler_stores_expected_archive_data(
     print(data)
 
 
-@pytest.mark.asyncio
-async def test_handler_stores_expected_rates_data(
+def test_handler_stores_expected_rates_data(
     mock_settings: Settings, create_archive_bucket: None
 ) -> None:
-    await handler("", "")
+    handler("", "")

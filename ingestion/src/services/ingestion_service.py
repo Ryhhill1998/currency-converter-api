@@ -16,9 +16,9 @@ class IngestionService:
     def _generate_archive_path(timestamp: datetime) -> str:
         return timestamp.strftime("ecb/year=%Y/month=%m/day=%d/raw_rates.csv")
 
-    async def run(self, run_timestamp: datetime) -> None:
+    def run(self, run_timestamp: datetime) -> None:
         # Retrieve latest raw data from ECB
-        latest_rates_data: bytes = await self.ecb_client.fetch_latest_rates()
+        latest_rates_data: bytes = self.ecb_client.fetch_latest_rates()
 
         # Store raw data in archive
         archive_file_path: str = self._generate_archive_path(run_timestamp)
