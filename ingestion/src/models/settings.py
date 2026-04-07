@@ -1,41 +1,27 @@
 from functools import lru_cache
 
 from pydantic import HttpUrl
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
-class GeneralSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="GENERAL_")
-
+class Settings(BaseSettings):
+    # --- Mode Toggles ---
     is_local_ecb_client: bool = False
     is_local_archive_store: bool = False
     is_local_rates_store: bool = False
 
+    # --- General ---
     http_timeout: float = 10.0
 
+    # --- Local ECB Settings ---
+    ecb_local_file_path: str = "data/ecb_sample.csv"
 
-class LocalEcbSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="LOCAL_ECB_")
-
-
-class HttpEcbSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="HTTP_ECB_")
-
-    url: HttpUrl
-    format: str = "csvdata"
-    observations: int = 1
+    # --- HTTP ECB Settings ---
+    ecb_http_url: HttpUrl = HttpUrl("https://data-api.ecb.europa.eu/service/data/EXR/D..EUR.SP00.A")
+    ecb_http_format: str = "csvdata"
+    ecb_http_observations: int = 1
 
 
 @lru_cache(maxsize=1)
-def get_general_settings() -> GeneralSettings:
-    return GeneralSettings()  # type: ignore
-
-
-@lru_cache(maxsize=1)
-def get_local_ecb_settings() -> LocalEcbSettings:
-    return LocalEcbSettings()  # type: ignore
-
-
-@lru_cache(maxsize=1)
-def get_http_ecb_settings() -> HttpEcbSettings:
-    return HttpEcbSettings()  # type: ignore
+def get_settings() -> Settings:
+    return Settings()  # type: ignore

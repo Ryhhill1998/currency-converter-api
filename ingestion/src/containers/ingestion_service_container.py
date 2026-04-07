@@ -2,15 +2,14 @@ import httpx
 
 from src.clients.ecb.ecb_client import EcbClient
 from src.clients.ecb.http_ecb_client import HttpEcbClient
-from src.models.settings import GeneralSettings, HttpEcbSettings, get_http_ecb_settings, get_local_ecb_settings, \
-    LocalEcbSettings
+from src.models.settings import Settings
 from src.services.ingestion_service import IngestionService
 from src.stores.archive.archive_store import ArchiveStore
 from src.stores.rates.rates_store import RatesStore
 
 
 class IngestionServiceContainer:
-    def __init__(self, settings: GeneralSettings) -> None:
+    def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self._http_client: httpx.AsyncClient | None = None
 

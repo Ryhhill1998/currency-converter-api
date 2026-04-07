@@ -1,12 +1,12 @@
 from datetime import datetime
 
 from src.containers.ingestion_service_container import IngestionServiceContainer
-from src.models.settings import GeneralSettings, get_general_settings
+from src.models.settings import Settings, get_settings
 
 
-async def handler(_, __) -> dict[str, str]:
+async def handler(_, __, settings: Settings | None = None) -> dict[str, str]:
     system_run_timestamp: datetime = datetime.now()
-    settings: GeneralSettings = get_general_settings()
+    settings: Settings = settings or get_settings()
 
     async with IngestionServiceContainer(settings) as ingestion_service_container:
         ingestion_service = ingestion_service_container.get_ingestion_service()
