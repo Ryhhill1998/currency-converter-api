@@ -113,7 +113,7 @@ def test_handler_stores_expected_parsed_data(
 
     # ASSERT
     archive_file_path = "rates/type=parsed/year=2026/month=01/day=01/parsed_rates.json"
-    actual_data = pl.read_csv(
+    actual_data = pl.read_json(
         s3_client.get_object(Bucket=ARCHIVE_BUCKET_NAME, Key=archive_file_path)["Body"]
         .read()
     ).to_dicts()
